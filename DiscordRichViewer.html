@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Rich Previewer</title>
+    <!-- DOM to Image Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js" integrity="sha512-01CJ9/g7e8cUmY0DFTMcUw/ikS799FHiOA0eyHsUWfOetgbx/t6oV4otQ5zXKQyIrQGTHSmRVPIgrgLcZi/WMA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+        /* Font Declarations */
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsans.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsansitalic.woff2') format('woff2');
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsansmedium.woff2') format('woff2');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsansmediumitalic.woff2') format('woff2');
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsanssemibold.woff2') format('woff2');
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsanssemibolditalic.woff2') format('woff2');
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsansbold.woff2') format('woff2');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsansbolditalic.woff2') format('woff2');
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsansextrabold.woff2') format('woff2');
+            font-weight: 800;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'GG Sans';
+            src: url('gg-sans/ggsansextrabolditalic.woff2') format('woff2');
+            font-weight: 800;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'GG Sans Mono';
+            src: url('gg-sans/ggsansmono.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'GG Sans Mono';
+            src: url('gg-sans/ggsansmonobold.woff2') format('woff2');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        /* Global Styles */
+        body {
+            font-family: 'GG Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: #36393f;
+        }
+
+        /* Profile Card Container */
+        .profile-card {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 300px;
+            background-color: #111214;
+            box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.3);
+            margin: 40px auto;
+        }
+
+        .header-banner {
+            background-image: url("res/IDA-Header.png");
+            background-size: cover;
+            height: 80px;
+            display: flex;
+        }
+
+        .profile-avatar-container {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            border: 6px solid #111214;
+        }
+
+        .profile-avatar-wrapper {
+            position: relative;
+        }
+
+        .profile-avatar {
+            border-radius: 50%;
+            width: 90px;
+        }
+
+        .status-indicator {
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: #2aa45f;
+            border: 3px solid #111214;
+        }
+
+        .username {
+            padding: 40px 16px 16px;
+            color: white;
+            font-size: 20px;
+            line-height: 24px;
+            font-weight: 700;
+        }
+
+        .activity-section {
+            color: hsl(215, 8.824%, 73.333%);
+        }
+
+        .activity-header {
+            padding: 16px;
+            font-size: 12px;
+            line-height: 1.3333333333333333;
+            font-weight: 700;
+        }
+
+        .game-activity {
+            align-items: flex-start;
+            display: flex;
+            color: hsl(210, 9.091%, 87.059%);
+            padding: 0 16px 16px;
+        }
+
+        .game-icon {
+            width: 60px;
+        }
+
+        .game-info {
+            display: flex;
+            flex-direction: column;
+            margin-left: 10px;
+        }
+
+        .game-title {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 16px;
+            margin-bottom: 2px;
+        }
+
+        .game-detail {
+            display: block;
+            font-size: 14px;
+            line-height: 16px;
+            margin-bottom: 2px;
+            font-weight: lighter;
+        }
+
+        .game-state {
+            display: block;
+            font-size: 14px;
+            line-height: 16px;
+            margin-bottom: 6px;
+            font-weight: lighter;
+        }
+
+        .playtime {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-direction: row;
+        }
+
+        .playtime-icon {
+            fill: #73bf83;
+        }
+
+        .playtime-text {
+            display: block;
+            color: #73bf83;
+            font-size: 14px;
+            line-height: 16px;
+            font-family: 'GG Sans Mono';
+            font-weight: bold;
+        }
+
+        /* Download Button */
+        #download-button {
+            padding: 10px 20px;
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-family: 'GG Sans', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+
+        #download-button:hover {
+            background-color: #4752C4;
+        }
+
+        .downloadable-div {
+            /* border: 1px solid grey; */
+            /* border-radius: 2%; */
+            display: flex;
+            padding-left: 50px;
+            padding-right: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="downloadable-div">
+        <div class="profile-card">
+            <div class="header-banner"></div>
+            <div class="profile-avatar-container">
+                <div class="profile-avatar-wrapper">
+                    <img class="profile-avatar" src="res/xda.png" alt="Profile Avatar" />
+                    <div class="status-indicator"></div>
+                </div>
+            </div>
+            <div class="username">jeanxpereira</div>
+            <div class="activity-section">
+                <div class="activity-header">PLAYING A GAME</div>
+                <div class="game-activity">
+                    <img class="game-icon" src="res/IDA-Teams.png" alt="Game Icon" />
+                    <div class="game-info">
+                        <p class="game-title">IDA Pro 9.1</p>
+                        <p class="game-detail">Darkspore_local.exe</p>
+                        <p class="game-state">Reversing NounData (0xF65029)</p>
+                        <div class="playtime">
+                            <svg class="playtime-icon" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24">
+                                <path fill="#73bf83" fill-rule="evenodd" d="M20.97 4.06c0 .18.08.35.24.43.55.28.9.82 1.04 1.42.3 1.24.75 3.7.75 7.09v4.91a3.09 3.09 0 0 1-5.85 1.38l-1.76-3.51a1.09 1.09 0 0 0-1.23-.55c-.57.13-1.36.27-2.16.27s-1.6-.14-2.16-.27c-.49-.11-1 .1-1.23.55l-1.76 3.51A3.09 3.09 0 0 1 1 17.91V13c0-3.38.46-5.85.75-7.1.15-.6.49-1.13 1.04-1.4a.47.47 0 0 0 .24-.44c0-.7.48-1.32 1.2-1.47l2.93-.62c.5-.1 1 .06 1.36.4.35.34.78.71 1.28.68a42.4 42.4 0 0 1 4.4 0c.5.03.93-.34 1.28-.69.35-.33.86-.5 1.36-.39l2.94.62c.7.15 1.19.78 1.19 1.47ZM20 7.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM15.5 12a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM5 7a1 1 0 0 1 2 0v1h1a1 1 0 0 1 0 2H7v1a1 1 0 1 1-2 0v-1H4a1 1 0 1 1 0-2h1V7Z" clip-rule="evenodd" class=""></path>
+                            </svg>
+                            <p class="playtime-text">2:49:23</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button id="download-button">Download as PNG</button>
+
+    <script>
+        // Select the div to download
+        const divToDownload = document.querySelector('.downloadable-div');
+        
+        // Select the download button
+        const downloadButton = document.getElementById('download-button');
+        
+        // Function to create the image and start the download
+        function downloadDivAsImage() {
+            // Create an image element
+            const image = document.createElement('img');
+            
+            // Convert the div to an image using DOMtoImage
+            domtoimage.toPng(divToDownload)
+                .then(function (dataUrl) {
+                    // Set the 'src' attribute of the image
+                    image.src = dataUrl;
+                    
+                    // Create a download link
+                    const link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = 'preview.png';
+                    
+                    // Append the image to the link
+                    link.appendChild(image);
+                    
+                    // Simulate a click on the link to start the download
+                    link.click();
+                })
+                .catch(function (error) {
+                    console.error('Error converting div to image:', error);
+                });
+        }
+        
+        // Add an event listener to the download button
+        downloadButton.addEventListener('click', downloadDivAsImage);
+    </script>
+</body>
+</html>
